@@ -12,6 +12,7 @@ const Navbar = () => {
         role: 'employer'
     };
     const isAuthenticated = true;
+    
     const logout = () => {
         console.log('Logout');
     };
@@ -28,7 +29,7 @@ const Navbar = () => {
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center space-x-6">
-                        <Link href="/task-listing" className="text-gray-700 hover:text-pro">
+                        <Link href="/tasks" className="text-gray-700 hover:text-pro">
                             Browse Tasks
                         </Link>
 

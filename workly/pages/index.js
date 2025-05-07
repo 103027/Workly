@@ -29,12 +29,12 @@ export default function Home() {
                 Connect with qualified service providers in your area. Post a job or offer your skills.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                <Link href="">
+                <Link href="/auth?mode=signup">
                   <Button size="lg" className="bg-white text-pro hover:bg-gray-200">
                     Get Started
                   </Button>
                 </Link>
-                <Link href="">
+                <Link href="/help">
                   <Button size="lg" variant="outline" className="border-white text-pro hover:bg-white/10">
                     How it Works
                   </Button>
@@ -106,7 +106,7 @@ export default function Home() {
           </div>
 
           <div className="mt-10 text-center">
-            <Link href="/task-listing">
+            <Link href="/tasks">
               <Button variant="outline" className="border-pro text-pro hover:bg-pro hover:text-white">
                 View All Categories <ArrowRight size={16} className="ml-2" />
               </Button>
