@@ -72,26 +72,26 @@ export default async function handler(req, res) {
                 status: 'open',
                 _id: { $nin: taskIds }
             }).toArray();
+
+            const assignedTasks = await db.collection('tasks').find({
+                assignedTo: new ObjectId(userId),
+            }).toArray();
             
-            const allTasks = [...bidTasks, ...openTasks];
+            const openTasksCount = openTasks.filter(task => task.status === 'open').length;
+            const canceledBidsCount = bids.filter(bid => bid.status === 'canceled').length;
             
-            const openTasksCount = allTasks.filter(task => task.status === 'open').length;
-            
-            const bidTaskCounts = bidTasks.reduce((acc, task) => {
-                if (task.status === 'canceled') acc.canceled++;
-                else if (task.status === 'completed') acc.completed++;
+            const bidTaskCounts = assignedTasks.reduce((acc, task) => {
+                if (task.status === 'completed') acc.completed++;
                 else if (task.status === 'in-progress') acc.inProgress++;
                 return acc;
             }, {
-                canceled: 0,
                 completed: 0,
                 inProgress: 0
             });
             
             const counts = {
-                total: allTasks.length,
                 open: openTasksCount,
-                canceled: bidTaskCounts.canceled,
+                canceled: canceledBidsCount,
                 completed: bidTaskCounts.completed,
                 inProgress: bidTaskCounts.inProgress
             };

@@ -4,20 +4,19 @@ import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/store/AuthContext";
+import { format } from 'date-fns';
 
 const TaskCard = (task) => {
     const { userId } = useAuth()
     let showActions = true
     let isMine = false
-    if(task.userId === userId ){
+    if (task.userId === userId) {
         isMine = true
     }
-    const date = new Date(task.createdAt);
-    const shortFormat = date.toLocaleString('en-PK', {
-        timeZone: 'Asia/Karachi',
-        dateStyle: 'short',
-        timeStyle: 'short'
-    });
+
+    const formatDate = (dateString) => {
+        return format(new Date(dateString), 'dd/MM/yyyy, h:mm a');
+    };
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -57,7 +56,7 @@ const TaskCard = (task) => {
                 <div className="flex justify-between items-center">
                     <div>
                         <p className="text-pro font-semibold">PKR {task.budget}</p>
-                        <p className="text-xs text-gray-500">Posted at {shortFormat}</p>
+                        <p className="text-xs text-gray-500">Posted at {formatDate(task.createdAt)}</p>
                     </div>
                     {!isMine && task?.bids?.length > 0 && (
                         <div className="text-sm text-gray-500">

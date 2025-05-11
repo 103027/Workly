@@ -11,8 +11,8 @@ async function handler(req, res) {
         const tasksCollection = db.collection("tasks");
         const bidsCollection = db.collection("bids");
 
-        // Get all tasks
-        const tasks = await tasksCollection.find({}).toArray();
+        // Get all tasks with status open
+        const tasks = await tasksCollection.find({ status: 'open' }).toArray();
 
         if (tasks.length === 0) {
             return res.status(404).json({ message: 'No tasks found!' });

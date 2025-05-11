@@ -20,8 +20,11 @@ const Dashboard = (props) => {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState('open');
     const [filteredTasks, setFilteredTasks] = useState(props.tasks);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        if (isLoading) return;
+
         if (!isAuthenticated) {
             router.push('/auth/login');
             return;
@@ -29,8 +32,22 @@ const Dashboard = (props) => {
 
         if (!user?.role) {
             router.push('/role');
+            return;
         }
-    }, []);
+
+        const { role: routeRole, userId } = router.query;
+        if (routeRole && userId) {
+            router.push(`/dashboard/${routeRole}/${userId}`);
+        } else {
+            router.push('/dashboard');
+        }
+    }, [isAuthenticated, user?.role, router.query, isLoading]);
+
+    useEffect(() => {
+        if (!isAuthenticated) return;
+        setIsLoading(false);
+    }, [isAuthenticated]);
+
 
     useEffect(() => {
         // Filter tasks based on active tab
@@ -153,35 +170,35 @@ const Dashboard = (props) => {
                                     <TabsContent value="all" className="space-y-0">
                                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {filteredTasks.map(task => (
-                                                <TaskCard key={task.id} {...task} isMine={true} />
+                                                <TaskCard key={task._id} {...task} isMine={true} />
                                             ))}
                                         </div>
                                     </TabsContent>
                                     <TabsContent value="open" className="space-y-0">
                                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {filteredTasks.map(task => (
-                                                <TaskCard key={task.id} {...task} isMine={true} />
+                                                <TaskCard key={task._id} {...task} isMine={true} />
                                             ))}
                                         </div>
                                     </TabsContent>
                                     <TabsContent value="in-progress" className="space-y-0">
                                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {filteredTasks.map(task => (
-                                                <TaskCard key={task.id} {...task} isMine={true} />
+                                                <TaskCard key={task._id} {...task} isMine={true} />
                                             ))}
                                         </div>
                                     </TabsContent>
                                     <TabsContent value="completed" className="space-y-0">
                                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {filteredTasks.map(task => (
-                                                <TaskCard key={task.id} {...task} isMine={true} />
+                                                <TaskCard key={task._id} {...task} isMine={true} />
                                             ))}
                                         </div>
                                     </TabsContent>
                                     <TabsContent value="canceled" className="space-y-0">
                                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {filteredTasks.map(task => (
-                                                <TaskCard key={task.id} {...task} isMine={true} />
+                                                <TaskCard key={task._id} {...task} isMine={true} />
                                             ))}
                                         </div>
                                     </TabsContent>
@@ -191,20 +208,20 @@ const Dashboard = (props) => {
                     ) : (
                         <div className="space-y-8">
                             <div>
-                                <h2 className="text-xl font-medium mb-4">Tasks You are Asigned With</h2>
+                                <h2 className="text-xl font-medium mb-4">Tasks You are Linked With</h2>
                                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {props.tasks.map(task => (
-                                        <TaskCard key={task.id} {...task} />
+                                        <TaskCard key={task._id} {...task} />
                                     ))}
                                 </div>
                             </div>
 
                             <div>
-                                <h2 className="text-xl font-medium mb-4">Your Active Bids</h2>
+                                <h2 className="text-xl font-medium mb-4">Your Bids</h2>
                                 {props.bids.length > 0 ? (
                                     <div className="grid md:grid-cols-2 gap-6">
                                         {props.bids.map(bid => (
-                                            <BidCard key={bid.id} {...bid} viewerIsTaskOwner={false} />
+                                            <BidCard key={bid._id} {...bid} viewerIsTaskOwner={false} />
                                         ))}
                                     </div>
                                 ) : (

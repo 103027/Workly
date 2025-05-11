@@ -13,6 +13,7 @@ import { Calendar, Clock, Delete, DollarSign, MapPin, User } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import axios from 'axios';
 import TaskRatingForm from '@/components/rating/SubmitReview';
+import { io } from 'socket.io-client';
 
 const Notification = ({ message, type, onClose }) => {
     return (
@@ -44,23 +45,78 @@ const TaskDetail = (props) => {
     const [isSubmittingBid, setIsSubmittingBid] = useState(false);
     const [notification, setNotification] = useState(null);
     const [task, setTask] = useState(props.task);
-    var taskBids = props.task.bids
-    // const [taskBids, setTaskBids] = useState(props.task.bids);
+    const [taskBids, setTaskBids] = useState([]);
+    const [socket, setSocket] = useState(null);
 
-    const date = new Date(task.createdAt);
+    const date = new Date(task?.createdAt);
     const shortFormat = date.toLocaleString('en-PK', {
         timeZone: 'Asia/Karachi',
         dateStyle: 'short',
         timeStyle: 'short'
     });
 
+    // Initialize socket connection
+    useEffect(() => {
+        // Initialize socket connection
+        const initSocket = async () => {
+            await fetch('/api/socket');
+            const socketIo = io();
+            setSocket(socketIo);
+
+            return () => {
+                socketIo.disconnect();
+            };
+        };
+
+        initSocket();
+    }, []);
+
+    // Listen for socket events
+    useEffect(() => {
+        if (socket) {
+            // Listen for task updates
+            socket.on('refreshData', async () => {
+                try {
+                    // Fetch updated task data
+                    const response = await axios.get(`http://localhost:3000/api/tasks/${id}`);
+                    if (response.data?.data) {
+                        setTask(response.data.data);
+                        filterBids(response.data.data);
+                        showNotification("Task information updated", "success");
+                    }
+                } catch (error) {
+                    console.error('Error fetching updated task data:', error);
+                }
+            });
+
+            return () => {
+                socket.off('refreshData');
+            };
+        }
+    }, [socket, id]);
+
+    // Filter bids based on user role
+    useEffect(() => {
+        filterBids(task);
+    }, [task, isAuthenticated, user.id, user.role]);
+
+    const filterBids = (taskData) => {
+        if (!taskData) return;
+        
+        // Check if user is the task poster
+        const isTaskOwner = isAuthenticated && user?.role === 'employer' && taskData?.postedBy?._id === user.id;
+        
+        if (!isTaskOwner && isAuthenticated && user?.role === 'employee') {
+            // If user is an employee and not the task owner, only show their bids
+            setTaskBids(taskData.bids.filter(bid => bid.userId === user.id));
+        } else {
+            // If user is the task owner or not authenticated, show all bids
+            setTaskBids(taskData.bids);
+        }
+    };
+
     // Check if user is the task poster
     const isTaskOwner = isAuthenticated && user?.role === 'employer' && task?.postedBy?._id === user.id;
-    if (!isTaskOwner) {
-        taskBids = props.task.bids.filter(bid => bid.userId === user.id)
-    } else {
-        taskBids = props.task.bids
-    }
 
     // Check if user has already bid on this task
     const userHasBid = isAuthenticated && user?.role === 'employee' &&
@@ -71,6 +127,12 @@ const TaskDetail = (props) => {
         setTimeout(() => {
             setNotification(null);
         }, 3000);
+    };
+
+    const emitUpdateEvent = () => {
+        if (socket) {
+            socket.emit('updateData');
+        }
     };
 
     const submitBid = async (formData) => {
@@ -92,6 +154,8 @@ const TaskDetail = (props) => {
                 }
             );
 
+            // Emit socket event to notify others about the update
+            emitUpdateEvent();
             return response.data;
         } catch (error) {
             console.error('Failed to Post task:', error);
@@ -115,12 +179,17 @@ const TaskDetail = (props) => {
 
         setIsSubmittingBid(true);
 
-        setTimeout(() => {
-            setIsSubmittingBid(false);
-            submitBid({ bidAmount, bidMessage, deliveryTime })
-            showNotification("Your bid has been submitted successfully!");
-            router.push(`/dashboard/${role}/${userId}`);
-        }, 1000);
+        submitBid({ bidAmount, bidMessage, deliveryTime })
+            .then(() => {
+                setIsSubmittingBid(false);
+                showNotification("Your bid has been submitted successfully!");
+                router.push(`/dashboard/${role}/${userId}`);
+            })
+            .catch((error) => {
+                setIsSubmittingBid(false);
+                showNotification("Failed to submit bid. Please try again.", "error");
+                console.error(error);
+            });
     };
 
     const AcceptBid = async (bidId) => {
@@ -137,6 +206,8 @@ const TaskDetail = (props) => {
                 }
             );
 
+            // Emit socket event to notify others about the update
+            emitUpdateEvent();
             return response.data;
         } catch (error) {
             console.error('Failed to Accept the bid:', error);
@@ -146,8 +217,14 @@ const TaskDetail = (props) => {
 
     const handleAcceptBid = (bidId) => {
         AcceptBid(bidId)
-        showNotification("You've accepted the bid!");
-        router.push('/dashboard');
+            .then(() => {
+                showNotification("You've accepted the bid!");
+                router.push('/dashboard');
+            })
+            .catch((error) => {
+                showNotification("Failed to accept bid. Please try again.", "error");
+                console.error(error);
+            });
     };
 
     const handleCompleteTask = async (rating, review) => {
@@ -167,11 +244,14 @@ const TaskDetail = (props) => {
                 }
             );
 
+            // Emit socket event to notify others about the update
+            emitUpdateEvent();
             showNotification("Task Completed!");
             router.push('/dashboard');
             return response.data;
         } catch (error) {
-            console.error('Failed to Accept the bid:', error);
+            console.error('Failed to complete the task:', error);
+            showNotification("Failed to complete task. Please try again.", "error");
             throw error;
         }
     };
@@ -190,11 +270,14 @@ const TaskDetail = (props) => {
                 }
             );
 
+            // Emit socket event to notify others about the update
+            emitUpdateEvent();
             showNotification("Your Bid Deleted");
             router.push('/dashboard');
             return response.data;
         } catch (error) {
             console.error('Failed to Delete the bid:', error);
+            showNotification("Failed to delete bid. Please try again.", "error");
             throw error;
         }
     }
@@ -213,11 +296,14 @@ const TaskDetail = (props) => {
                 }
             );
 
+            // Emit socket event to notify others about the update
+            emitUpdateEvent();
             showNotification("Your Task Deleted");
             router.push('/dashboard');
             return response.data;
         } catch (error) {
             console.error('Failed to Delete the task:', error);
+            showNotification("Failed to delete task. Please try again.", "error");
             throw error;
         }
     }
@@ -236,11 +322,14 @@ const TaskDetail = (props) => {
                 }
             );
 
+            // Emit socket event to notify others about the update
+            emitUpdateEvent();
             showNotification("Your Task Canceled");
             router.push('/dashboard');
             return response.data;
         } catch (error) {
             console.error('Failed to Cancel the task:', error);
+            showNotification("Failed to cancel task. Please try again.", "error");
             throw error;
         }
     }
@@ -259,11 +348,14 @@ const TaskDetail = (props) => {
                 }
             );
 
+            // Emit socket event to notify others about the update
+            emitUpdateEvent();
             showNotification("Your Bid Canceled");
             router.push('/dashboard');
             return response.data;
         } catch (error) {
             console.error('Failed to Cancel the Bid:', error);
+            showNotification("Failed to cancel bid. Please try again.", "error");
             throw error;
         }
     }
@@ -289,19 +381,6 @@ const TaskDetail = (props) => {
         );
     }
 
-    // Show loading state while waiting for router or data
-    // if (!task) {
-    //     return (
-    //         <>
-    //             <div className="min-h-[calc(100vh-80px)] bg-gray-50 flex items-center justify-center">
-    //                 <div className="text-center p-6">
-    //                     <h2 className="text-xl">Loading task details...</h2>
-    //                 </div>
-    //             </div>
-    //         </>
-    //     );
-    // }
-
     return (
         <>
             {notification && (
@@ -325,16 +404,16 @@ const TaskDetail = (props) => {
                             <Card className="mb-8">
                                 <CardContent className="p-6">
                                     <div className="flex justify-between items-start mb-4">
-                                        <h1 className="text-2xl font-bold">{props.task.title}</h1>
+                                        <h1 className="text-2xl font-bold">{task.title}</h1>
                                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                            {props.task.status}
+                                            {task.status}
                                         </span>
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4 mb-6">
                                         <div className="flex items-center text-gray-600">
                                             <MapPin size={18} className="mr-2" />
-                                            {props.task.location}
+                                            {task.location}
                                         </div>
                                         <div className="flex items-center text-gray-600">
                                             <Calendar size={18} className="mr-2" />
@@ -342,25 +421,25 @@ const TaskDetail = (props) => {
                                         </div>
                                         <div className="flex items-center text-gray-600">
                                             <DollarSign size={18} className="mr-2" />
-                                            Budget: ${props.task.budget}
+                                            Budget: ${task.budget}
                                         </div>
                                         <div className="flex items-center text-gray-600">
                                             <Clock size={18} className="mr-2" />
-                                            {props.task?.bids?.length} bids
+                                            {task?.bids?.length} bids
                                         </div>
                                     </div>
 
                                     <div className="mb-6">
                                         <h2 className="text-lg font-medium mb-3">Description</h2>
                                         <p className="text-gray-700 whitespace-pre-line">
-                                            {props.task.description}
+                                            {task.description}
                                         </p>
                                     </div>
 
                                     <div className="mb-6">
                                         <h2 className="text-lg font-medium mb-3">Phone Number</h2>
                                         <p className="text-gray-700 whitespace-pre-line">
-                                            {props.task?.postedBy?.phoneNumber}
+                                            {task?.postedBy?.phoneNumber}
                                         </p>
                                     </div>
 
@@ -368,8 +447,8 @@ const TaskDetail = (props) => {
                                         <div className="flex items-center text-gray-700">
                                             <User size={18} className="mr-2" />
                                             Posted by:{' '}
-                                            <Link href={`/profile/${props.task?.postedBy?._id}`} className="ml-1 text-pro hover:underline">
-                                                {props.task?.postedBy?.Fullname}
+                                            <Link href={`/profile/${task?.postedBy?._id}`} className="ml-1 text-pro hover:underline">
+                                                {task?.postedBy?.Fullname}
                                             </Link>
                                         </div>
                                     </div>
@@ -475,7 +554,7 @@ const TaskDetail = (props) => {
                                                 You'll be notified if the client responds to your bid.
                                             </p>
                                             <div className="space-y-3">
-                                                {taskBids[0].status === "accepted" && <Dialog>
+                                                {taskBids.length > 0 && taskBids[0].status === "accepted" && <Dialog>
                                                     <DialogTrigger asChild>
                                                         <Button
                                                             variant="outline"
@@ -487,14 +566,14 @@ const TaskDetail = (props) => {
                                                     <TaskRatingForm onSubmit={handleCompleteTask} />
                                                 </Dialog>
                                                 }
-                                                {task?.employeeConfirmed !== true && taskBids[0].status !== "Canceled" && <Button
+                                                {task?.employeeConfirmed !== true && taskBids.length > 0 && taskBids[0].status !== "Canceled" && <Button
                                                     variant="outline"
                                                     className="w-full border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white"
                                                     onClick={() => { handleCancelBid(taskBids[0]._id) }}
                                                 >
                                                     Cancel Bid
                                                 </Button>}
-                                                {task.status === "open" && <Button
+                                                {task.status === "open" && taskBids.length > 0 && <Button
                                                     variant="outline"
                                                     className="w-full border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
                                                     onClick={() => { DeleteBid(taskBids[0]._id) }}
