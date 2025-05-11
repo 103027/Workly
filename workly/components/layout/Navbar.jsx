@@ -1,25 +1,27 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-// import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/store/AuthContext';
 import { Menu, X, User } from 'lucide-react';
 import { useState } from 'react';
 import Logo from './Logo';
-
+import { useRouter } from 'next/router';
 const Navbar = () => {
-    //   const { user, isAuthenticated, logout } = useAuth();
+    const router = useRouter()
+    const { userId, name, role, isAuthenticated, logout } = useAuth();
     const user = {
-        name: 'John Doe',
-        role: 'employer'
-    };
-    const isAuthenticated = true;
-    
-    const logout = () => {
-        console.log('Logout');
-    };
+        name,
+        role
+    }
+
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
+
+    function handleLogout(){
+        router.push('/')
+        logout()
+    }
 
     return (
         <nav className="bg-white shadow">
@@ -55,18 +57,18 @@ const Navbar = () => {
 
                                     <div className="absolute right-0 w-48 py-2 mt-2 bg-white rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                                         <Link
-                                            href="/dashboard"
+                                            href={`/dashboard`}
                                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
                                             Dashboard
                                         </Link>
                                         <Link
-                                            href="/profile"
+                                            href={`/profile/${userId}`}
                                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
                                             My Profile
                                         </Link>
-                                        {user?.role === 'employer' ? (
+                                        {/* {user?.role === 'employer' ? (
                                             <Link
                                                 href="/my-tasks"
                                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -80,9 +82,9 @@ const Navbar = () => {
                                             >
                                                 My Bids
                                             </Link>
-                                        )}
+                                        )} */}
                                         <button
-                                            onClick={logout}
+                                            onClick={handleLogout}
                                             className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
                                         >
                                             Logout
@@ -92,12 +94,12 @@ const Navbar = () => {
                             </div>
                         ) : (
                             <div className="flex items-center space-x-4">
-                                <Link href="/auth?mode=login">
+                                <Link href="/auth/login">
                                     <Button variant="outline" className="border-pro text-pro hover:bg-pro hover:text-white">
                                         Login
                                     </Button>
                                 </Link>
-                                <Link href="/auth?mode=signup">
+                                <Link href="/auth/signup">
                                     <Button variant="default" className="bg-pro hover:bg-pro-light">
                                         Sign Up
                                     </Button>

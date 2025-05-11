@@ -1,23 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight, CheckCheck, Clock, Search, ShieldCheck } from "lucide-react";
 import Link from "next/link"
-import Navbar from "@/components/layout/navbar"
 
-export default function Home() {
-  const categories = [
-    { name: "Plumbing", icon: "🔧" },
-    { name: "Electrical", icon: "⚡" },
-    { name: "Carpentry", icon: "🔨" },
-    { name: "Painting", icon: "🖌️" },
-    { name: "Cleaning", icon: "🧹" },
-    { name: "Moving", icon: "📦" },
-    { name: "Gardening", icon: "🌱" },
-    { name: "Driving", icon: "🚗" }
-  ];
+export default function Home({ categories, currentYear }) {
 
   return (
     <>
-      <Navbar />
       <section className="relative bg-gradient-to-br from-pro-dark via-pro to-pro-light text-white">
         <div className="container-custom py-16 md:py-24">
           <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -29,7 +17,7 @@ export default function Home() {
                 Connect with qualified service providers in your area. Post a job or offer your skills.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                <Link href="/auth?mode=signup">
+                <Link href="/auth/signup">
                   <Button size="lg" className="bg-white text-pro hover:bg-gray-200">
                     Get Started
                   </Button>
@@ -124,7 +112,7 @@ export default function Home() {
               Our platform makes it easy to connect service providers with people who need their skills
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div className="space-y-8">
               <div className="flex gap-4">
@@ -134,7 +122,7 @@ export default function Home() {
                   <p className="text-gray-600">Describe what you need done, when you need it, and what your budget is.</p>
                 </div>
               </div>
-              
+
               <div className="flex gap-4">
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-pro text-white flex items-center justify-center font-bold">2</div>
                 <div>
@@ -142,7 +130,7 @@ export default function Home() {
                   <p className="text-gray-600">Qualified professionals will send you competitive bids for your task.</p>
                 </div>
               </div>
-              
+
               <div className="flex gap-4">
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-pro text-white flex items-center justify-center font-bold">3</div>
                 <div>
@@ -151,12 +139,12 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100">
               <div className="relative aspect-video overflow-hidden rounded-md bg-gray-100 mb-6">
-                <img 
-                  src="https://images.unsplash.com/photo-1581093588401-fbb62a02f120?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                  alt="Professional at work" 
+                <img
+                  src="https://images.unsplash.com/photo-1581093588401-fbb62a02f120?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                  alt="Professional at work"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -174,7 +162,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      
+
       {/* Footer */}
       <footer className="bg-gray-800 text-white py-12">
         <div className="container-custom">
@@ -212,10 +200,32 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-10 pt-8 border-t border-gray-700 text-center text-gray-400 text-sm">
-            <p>© {new Date().getFullYear()} Workly. All rights reserved.</p>
+            <p>© {currentYear} Workly. All rights reserved.</p>
           </div>
         </div>
       </footer>
     </>
   )
+}
+
+export async function getStaticProps() {
+  const categories = [
+    { name: "Plumbing", icon: "🔧" },
+    { name: "Electrical", icon: "⚡" },
+    { name: "Carpentry", icon: "🔨" },
+    { name: "Painting", icon: "🖌️" },
+    { name: "Cleaning", icon: "🧹" },
+    { name: "Moving", icon: "📦" },
+    { name: "Gardening", icon: "🌱" },
+    { name: "Driving", icon: "🚗" }
+  ];
+
+  const currentYear = new Date().getFullYear();
+
+  return {
+    props: {
+      categories,
+      currentYear
+    }
+  }
 }

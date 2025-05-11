@@ -1,36 +1,20 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-// import { useAuth } from '@/context/AuthContext';
-import Navbar from '@/components/layout/Navbar';
+import { useAuth } from '@/store/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
-
-const categoryOptions = [
-    "Plumbing",
-    "Electrical",
-    "Carpentry",
-    "Painting",
-    "Cleaning",
-    "Moving",
-    "Gardening",
-    "Driving",
-    "Home Repairs",
-    "Computer Help",
-    "Pet Care",
-    "Other"
-];
+import axios from 'axios';
 
 const PostTask = () => {
-    //   const { user, isAuthenticated } = useAuth();
+    const { userId, name, role, isAuthenticated } = useAuth();
     const user = {
-        name: 'John Doe',
-        role: 'employer'
+        name,
+        role
     };
-    const isAuthenticated = true;
 
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,6 +27,21 @@ const PostTask = () => {
         description: ''
     });
 
+    const categoryOptions = [
+        "Plumbing",
+        "Electrical",
+        "Carpentry",
+        "Painting",
+        "Cleaning",
+        "Moving",
+        "Gardening",
+        "Driving",
+        "Home Repairs",
+        "Computer Help",
+        "Pet Care",
+        "Other"
+    ];
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -52,30 +51,53 @@ const PostTask = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const postTask = async (formData) => {
+        try {
+            const response = await axios.post(
+                `http://localhost:3000/api/post-task`,
+                {
+                    userId: userId,
+                    title: formData.title,
+                    category: formData.category,
+                    location: formData.location,
+                    budget: formData.budget,
+                    description: formData.description
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }
+            );
+
+            return response.data;
+        } catch (error) {
+            console.error('Failed to Post task:', error);
+            throw error;
+        }
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        // Validate form
         if (!formData.title || !formData.category || !formData.location || !formData.budget || !formData.description) {
             alert("Please fill in all required fields");
             setIsSubmitting(false);
             return;
         }
 
-        // Mock task submission
         setTimeout(() => {
             setIsSubmitting(false);
             alert("Task posted successfully!");
+            postTask(formData)
             router.push('/dashboard');
         }, 1000);
     };
 
-    // Check if user is authenticated and is an employer
     if (!isAuthenticated || user?.role !== 'employer') {
         return (
             <>
-                <Navbar />
                 <div className="min-h-[calc(100vh-80px)] bg-gray-50 flex items-center justify-center">
                     <div className="text-center p-6 max-w-md mx-auto">
                         <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
@@ -85,7 +107,7 @@ const PostTask = () => {
                                 : "Only employers can post tasks."}
                         </p>
                         <Button
-                            onClick={() => router.push(isAuthenticated ? '/dashboard' : '/auth?mode=login')}
+                            onClick={() => router.push(isAuthenticated ? '/dashboard' : '/auth/login')}
                             className="bg-pro hover:bg-pro-light"
                         >
                             {isAuthenticated ? 'Go to Dashboard' : 'Log In'}
@@ -98,7 +120,6 @@ const PostTask = () => {
 
     return (
         <>
-            <Navbar />
             <div className="min-h-[calc(100vh-80px)] bg-gray-50 py-8">
                 <div className="container-custom max-w-3xl">
                     <div className="mb-8">
@@ -148,7 +169,7 @@ const PostTask = () => {
                                     <Input
                                         id="location"
                                         name="location"
-                                        placeholder="E.g., San Francisco, CA"
+                                        placeholder="E.g., Lahore, Pakistan"
                                         value={formData.location}
                                         onChange={handleChange}
                                         className="form-input"
@@ -158,7 +179,7 @@ const PostTask = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="budget">Budget ($)</Label>
+                                <Label htmlFor="budget">Budget (PKR)</Label>
                                 <Input
                                     id="budget"
                                     name="budget"

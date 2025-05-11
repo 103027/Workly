@@ -1,5 +1,4 @@
 import React from "react";
-import Navbar from "@/components/layout/Navbar";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const Help = () => {
@@ -77,7 +76,6 @@ const Help = () => {
 
   return (
     <>
-      <Navbar />
       <div className="bg-gray-50 min-h-[calc(100vh-80px)] py-8">
         <div className="container-custom max-w-4xl">
           <div className="text-center mb-12">

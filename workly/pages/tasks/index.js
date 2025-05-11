@@ -1,81 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Navbar from '@/components/layout/Navbar';
 import TaskCard from '@/components/tasks/TaskCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, MapPin } from 'lucide-react';
-
-// Mock data for demonstration
-const mockTasks = [
-    {
-        id: '1',
-        title: 'Fix leaking bathroom sink',
-        category: 'Plumbing',
-        location: 'San Francisco, CA',
-        budget: 120,
-        description: 'The sink in my master bathroom is leaking from the pipes below. Need a professional to fix it as soon as possible.',
-        status: 'open',
-        bidCount: 3,
-        postedDate: '2 days ago',
-    },
-    {
-        id: '2',
-        title: 'Install ceiling fan in bedroom',
-        category: 'Electrical',
-        location: 'Oakland, CA',
-        budget: 85,
-        description: 'Need someone to install a ceiling fan in the master bedroom. I have already purchased the fan.',
-        status: 'open',
-        bidCount: 5,
-        postedDate: '4 days ago',
-    },
-    {
-        id: '3',
-        title: 'Move furniture to new apartment',
-        category: 'Moving',
-        location: 'San Jose, CA',
-        budget: 200,
-        description: 'Need help moving furniture from current apartment to new one about 3 miles away. Have a few heavy items.',
-        status: 'open',
-        bidCount: 4,
-        postedDate: '1 week ago',
-    },
-    {
-        id: '4',
-        title: 'Paint living room walls',
-        category: 'Painting',
-        location: 'San Francisco, CA',
-        budget: 300,
-        description: 'Need to paint my living room walls (approximately 400 sq ft). I will provide the paint.',
-        status: 'open',
-        bidCount: 2,
-        postedDate: '3 days ago',
-    },
-    {
-        id: '5',
-        title: 'Fix broken kitchen cabinet',
-        category: 'Carpentry',
-        location: 'Palo Alto, CA',
-        budget: 150,
-        description: 'One of my kitchen cabinet doors is broken at the hinge. Need someone to repair or replace it.',
-        status: 'open',
-        bidCount: 1,
-        postedDate: '5 days ago',
-    },
-    {
-        id: '6',
-        title: 'Deep clean 2-bedroom apartment',
-        category: 'Cleaning',
-        location: 'San Mateo, CA',
-        budget: 180,
-        description: 'Looking for thorough cleaning of my 2-bedroom apartment before I move out. Need all rooms, kitchen, and bathrooms cleaned.',
-        status: 'open',
-        bidCount: 6,
-        postedDate: '2 days ago',
-    },
-];
+import axios from 'axios';
 
 const categoryOptions = [
     "All Categories",
@@ -93,26 +23,18 @@ const categoryOptions = [
     "Other"
 ];
 
-const sortOptions = [
-    "Most Recent",
-    "Budget: High to Low",
-    "Budget: Low to High",
-    "Most Bids",
-    "Fewest Bids"
-];
-
-export default function TaskListing() {
+export default function TaskListing({ initialTasks }) {
     const router = useRouter();
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState("All Categories");
     const [location, setLocation] = useState('');
 
-    const [filteredTasks, setFilteredTasks] = useState(mockTasks);
+    const [filteredTasks, setFilteredTasks] = useState(initialTasks);
 
     // Apply filters
     useEffect(() => {
-        let results = [...mockTasks];
+        let results = [...initialTasks];
 
         // Filter by search term
         if (searchTerm) {
@@ -147,12 +69,11 @@ export default function TaskListing() {
         setLocation('');
 
         // Clear URL params
-        router.push('/task-listing');
+        router.push('/tasks');
     };
 
     return (
         <>
-            <Navbar />
             <div className="bg-gray-50 min-h-[calc(100vh-80px)] py-8">
                 <div className="container-custom">
                     <div className="mb-8">
@@ -211,7 +132,7 @@ export default function TaskListing() {
                     {filteredTasks.length > 0 ? (
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {filteredTasks.map(task => (
-                                <TaskCard key={task.id} {...task} />
+                                <TaskCard key={task._id} {...task} />
                             ))}
                         </div>
                     ) : (
@@ -231,4 +152,25 @@ export default function TaskListing() {
             </div>
         </>
     );
+}
+
+export async function getStaticProps() {
+    try {
+        const response = await axios.get('http://localhost:3000/api/tasks');
+        const tasks = response.data.data.tasks;
+        return {
+            props: {
+                initialTasks: tasks,
+            },
+            revalidate: 60,
+        };
+    } catch (error) {
+        console.error('Error fetching tasks:', error);
+        return {
+            props: {
+                initialTasks: [],
+            },
+            revalidate: 60,
+        };
+    }
 }

@@ -13,7 +13,7 @@ const BidCard = ({
   amount,
   message,
   deliveryTime,
-  rating = 0,
+  phoneNumber,
   taskId,
   status = 'pending',
   viewerIsTaskOwner = false,
@@ -31,6 +31,8 @@ const BidCard = ({
         return <Badge variant="success">Accepted</Badge>;
       case 'rejected':
         return <Badge variant="destructive">Rejected</Badge>;
+      case 'canceled':
+          return <Badge variant="destructive">Canceled</Badge>;
       default:
         return <Badge variant="secondary">Pending</Badge>;
     }
@@ -50,17 +52,6 @@ const BidCard = ({
             <Link href={`/profile/${userId}`}>
               <p className="text-sm font-medium leading-none">{userName}</p>
             </Link>
-            {rating > 0 && (
-              <div className="flex items-center space-x-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`h-3 w-3 ${i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
-                  />
-                ))}
-                <span className="text-xs text-gray-500">{rating.toFixed(1)}</span>
-              </div>
-            )}
           </div>
         </div>
         {getStatusBadge()}
@@ -68,12 +59,13 @@ const BidCard = ({
       <CardContent>
         <div className="flex justify-between items-center mb-2">
           <div>
-            <span className="text-2xl font-bold">${amount.toFixed(2)}</span>
+            <span className="text-2xl font-bold">PKR {amount}</span>
             {deliveryTime && (
               <p className="text-xs text-muted-foreground">
                 Delivery: {deliveryTime}
               </p>
             )}
+            <span className="text-1xl font-medium mt-4">{phoneNumber}</span>
           </div>
         </div>
         <p className="text-sm text-muted-foreground mb-4">{message}</p>
