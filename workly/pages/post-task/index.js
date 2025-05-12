@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { useNotification } from '@/store/NotificationContext';
 
 const PostTask = () => {
     const { userId, name, role, isAuthenticated } = useAuth();
@@ -18,7 +19,7 @@ const PostTask = () => {
 
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
-
+    const { showNotification } = useNotification();
     const [formData, setFormData] = useState({
         title: '',
         category: '',
@@ -69,11 +70,11 @@ const PostTask = () => {
                     }
                 }
             );
-
+            showNotification('Task Added successfully!', 'success');
             return response.data;
         } catch (error) {
             console.error('Failed to Post task:', error);
-            throw error;
+            showNotification('Failed to add a task!', 'error', 5000);
         }
     }
 
@@ -89,7 +90,6 @@ const PostTask = () => {
 
         setTimeout(() => {
             setIsSubmitting(false);
-            alert("Task posted successfully!");
             postTask(formData)
             router.push('/dashboard');
         }, 1000);

@@ -4,10 +4,12 @@ import { useAuth } from '@/store/AuthContext';
 import { Button } from '@/components/ui/button';
 import RoleCard from '@/components/ui/RoleCard';
 import axios from 'axios';
+import { useNotification } from '@/store/NotificationContext';
 
 const RoleSelection = () => {
+    const { showNotification } = useNotification()
     const [selectedRole, setSelectedRole] = useState(null);
-    const { userId, isAuthenticated, setRole , role } = useAuth();
+    const { userId, isAuthenticated, setRole, role } = useAuth();
     const router = useRouter();
 
     // Redirect if user is already authenticated with a role
@@ -23,7 +25,7 @@ const RoleSelection = () => {
     const updateUserRole = async (userId, newRole) => {
         try {
             const response = await axios.patch(
-                `http://localhost:3000/api/role/${userId}`, 
+                `http://localhost:3000/api/role/${userId}`,
                 { role: newRole },
                 {
                     headers: {
@@ -31,11 +33,11 @@ const RoleSelection = () => {
                     }
                 }
             );
-            
+            showNotification('Role Added!', 'success');
             return response.data;
         } catch (error) {
             console.error('Failed to update role:', error);
-            throw error;
+            showNotification('Failed to add role!', 'error', 5000);
         }
     };
 

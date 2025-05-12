@@ -18,7 +18,7 @@ const Navbar = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
 
-    function handleLogout(){
+    function handleLogout() {
         router.push('/')
         logout()
     }
@@ -35,7 +35,7 @@ const Navbar = () => {
                             Browse Tasks
                         </Link>
 
-                        <Link href="/help" className="text-gray-700 hover:text-pro">
+                        <Link href="/help/faqs" className="text-gray-700 hover:text-pro">
                             How It Works
                         </Link>
 
@@ -68,21 +68,6 @@ const Navbar = () => {
                                         >
                                             My Profile
                                         </Link>
-                                        {/* {user?.role === 'employer' ? (
-                                            <Link
-                                                href="/my-tasks"
-                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                            >
-                                                My Tasks
-                                            </Link>
-                                        ) : (
-                                            <Link
-                                                href="/my-bids"
-                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                            >
-                                                My Bids
-                                            </Link>
-                                        )} */}
                                         <button
                                             onClick={handleLogout}
                                             className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
@@ -121,14 +106,14 @@ const Navbar = () => {
                     <div className="md:hidden pt-4 pb-3 border-t mt-4 animate-fade-in">
                         <div className="flex flex-col space-y-3">
                             <Link
-                                href="/task-listing"
+                                href="/tasks"
                                 className="px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100"
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 Browse Tasks
                             </Link>
                             <Link
-                                href="/help"
+                                href="/help/faqs"
                                 className="px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100"
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
@@ -145,13 +130,13 @@ const Navbar = () => {
                                         Dashboard
                                     </Link>
                                     <Link
-                                        href="/profile"
+                                        href={`/profile/${userId}`}
                                         className="px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100"
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         My Profile
                                     </Link>
-                                    {user?.role === 'employer' ? (
+                                    {user?.role === 'employer' &&
                                         <>
                                             <Link
                                                 href="/post-task"
@@ -160,26 +145,10 @@ const Navbar = () => {
                                             >
                                                 Post a Task
                                             </Link>
-                                            <Link
-                                                href="/my-tasks"
-                                                className="px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100"
-                                                onClick={() => setIsMobileMenuOpen(false)}
-                                            >
-                                                My Tasks
-                                            </Link>
-                                        </>
-                                    ) : (
-                                        <Link
-                                            href="/my-bids"
-                                            className="px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100"
-                                            onClick={() => setIsMobileMenuOpen(false)}
-                                        >
-                                            My Bids
-                                        </Link>
-                                    )}
+                                        </>}
                                     <button
                                         onClick={() => {
-                                            logout();
+                                            handleLogout();
                                             setIsMobileMenuOpen(false);
                                         }}
                                         className="px-3 py-2 text-left rounded-md text-red-500 hover:bg-gray-100"
@@ -190,14 +159,14 @@ const Navbar = () => {
                             ) : (
                                 <div className="flex flex-col space-y-3 pt-2">
                                     <Link
-                                        href="/auth?mode=login"
+                                        href="/auth/login"
                                         className="px-3 py-2 rounded-md text-center border border-pro text-pro hover:bg-pro hover:text-white transition-colors"
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         Login
                                     </Link>
                                     <Link
-                                        href="/auth?mode=signup"
+                                        href="/auth/signup"
                                         className="px-3 py-2 rounded-md text-center bg-pro text-white hover:bg-pro-light transition-colors"
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >

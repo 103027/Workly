@@ -14,19 +14,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import axios from 'axios';
 import TaskRatingForm from '@/components/rating/SubmitReview';
 import { io } from 'socket.io-client';
-
-const Notification = ({ message, type, onClose }) => {
-    return (
-        <Alert className={`fixed top-4 right-4 w-auto max-w-sm z-50 ${type === 'error' ? 'bg-red-50 border-red-500' : 'bg-green-50 border-green-500'}`}>
-            <AlertDescription className={`${type === 'error' ? 'text-red-800' : 'text-green-800'} flex justify-between items-center`}>
-                <span>{message}</span>
-                <button onClick={onClose} className="ml-4 text-gray-500 hover:text-gray-700">
-                    &times;
-                </button>
-            </AlertDescription>
-        </Alert>
-    );
-};
+import { useNotification } from '@/store/NotificationContext';
+import { format } from 'date-fns';
 
 const TaskDetail = (props) => {
     const router = useRouter();
@@ -38,22 +27,18 @@ const TaskDetail = (props) => {
         id: userId,
         phoneNumber
     };
-
+    const { showNotification } = useNotification()
     const [bidAmount, setBidAmount] = useState('');
     const [bidMessage, setBidMessage] = useState('');
     const [deliveryTime, setDeliveryTime] = useState('');
     const [isSubmittingBid, setIsSubmittingBid] = useState(false);
-    const [notification, setNotification] = useState(null);
     const [task, setTask] = useState(props.task);
     const [taskBids, setTaskBids] = useState([]);
     const [socket, setSocket] = useState(null);
 
-    const date = new Date(task?.createdAt);
-    const shortFormat = date.toLocaleString('en-PK', {
-        timeZone: 'Asia/Karachi',
-        dateStyle: 'short',
-        timeStyle: 'short'
-    });
+    const formatDate = (dateString) => {
+        return format(new Date(dateString), 'dd/MM/yyyy, h:mm a');
+    };
 
     // Initialize socket connection
     useEffect(() => {
@@ -122,13 +107,6 @@ const TaskDetail = (props) => {
     const userHasBid = isAuthenticated && user?.role === 'employee' &&
         taskBids.some(bid => bid.userId === user.id);
 
-    const showNotification = (message, type = 'success') => {
-        setNotification({ message, type });
-        setTimeout(() => {
-            setNotification(null);
-        }, 3000);
-    };
-
     const emitUpdateEvent = () => {
         if (socket) {
             socket.emit('updateData');
@@ -167,13 +145,13 @@ const TaskDetail = (props) => {
         e.preventDefault();
 
         if (!isAuthenticated) {
-            showNotification("Please log in to submit a bid", "error");
+            showNotification("Please log in to submit a bid", "error", 5000);
             router.push('/auth/login');
             return;
         }
 
         if (!bidAmount || !bidMessage) {
-            showNotification("Please fill in all required fields", "error");
+            showNotification("Please fill in all required fields", "error", 5000);
             return;
         }
 
@@ -182,12 +160,12 @@ const TaskDetail = (props) => {
         submitBid({ bidAmount, bidMessage, deliveryTime })
             .then(() => {
                 setIsSubmittingBid(false);
-                showNotification("Your bid has been submitted successfully!");
+                showNotification("Your bid has been submitted successfully!", "success");
                 router.push(`/dashboard/${role}/${userId}`);
             })
             .catch((error) => {
                 setIsSubmittingBid(false);
-                showNotification("Failed to submit bid. Please try again.", "error");
+                showNotification("Failed to submit bid. Please try again.", "error", 5000);
                 console.error(error);
             });
     };
@@ -218,11 +196,11 @@ const TaskDetail = (props) => {
     const handleAcceptBid = (bidId) => {
         AcceptBid(bidId)
             .then(() => {
-                showNotification("You've accepted the bid!");
+                showNotification("You've accepted the bid!", "success");
                 router.push('/dashboard');
             })
             .catch((error) => {
-                showNotification("Failed to accept bid. Please try again.", "error");
+                showNotification("Failed to accept bid. Please try again.", "error", 5000);
                 console.error(error);
             });
     };
@@ -246,13 +224,12 @@ const TaskDetail = (props) => {
 
             // Emit socket event to notify others about the update
             emitUpdateEvent();
-            showNotification("Task Completed!");
+            showNotification("Task Completed!", "success");
             router.push('/dashboard');
             return response.data;
         } catch (error) {
             console.error('Failed to complete the task:', error);
-            showNotification("Failed to complete task. Please try again.", "error");
-            throw error;
+            showNotification("Failed to complete task. Please try again.", "error", 5000);
         }
     };
 
@@ -272,13 +249,12 @@ const TaskDetail = (props) => {
 
             // Emit socket event to notify others about the update
             emitUpdateEvent();
-            showNotification("Your Bid Deleted");
+            showNotification("Your Bid Deleted", "success");
             router.push('/dashboard');
             return response.data;
         } catch (error) {
             console.error('Failed to Delete the bid:', error);
-            showNotification("Failed to delete bid. Please try again.", "error");
-            throw error;
+            showNotification("Failed to delete bid. Please try again.", "error", 5000);
         }
     }
 
@@ -298,12 +274,12 @@ const TaskDetail = (props) => {
 
             // Emit socket event to notify others about the update
             emitUpdateEvent();
-            showNotification("Your Task Deleted");
+            showNotification("Your Task Deleted", "success");
             router.push('/dashboard');
             return response.data;
         } catch (error) {
             console.error('Failed to Delete the task:', error);
-            showNotification("Failed to delete task. Please try again.", "error");
+            showNotification("Failed to delete task. Please try again.", "error", 5000);
             throw error;
         }
     }
@@ -324,12 +300,12 @@ const TaskDetail = (props) => {
 
             // Emit socket event to notify others about the update
             emitUpdateEvent();
-            showNotification("Your Task Canceled");
+            showNotification("Your Task Canceled", "success");
             router.push('/dashboard');
             return response.data;
         } catch (error) {
             console.error('Failed to Cancel the task:', error);
-            showNotification("Failed to cancel task. Please try again.", "error");
+            showNotification("Failed to cancel task. Please try again.", "error", 5000);
             throw error;
         }
     }
@@ -350,12 +326,12 @@ const TaskDetail = (props) => {
 
             // Emit socket event to notify others about the update
             emitUpdateEvent();
-            showNotification("Your Bid Canceled");
+            showNotification("Your Bid Canceled", "success");
             router.push('/dashboard');
             return response.data;
         } catch (error) {
             console.error('Failed to Cancel the Bid:', error);
-            showNotification("Failed to cancel bid. Please try again.", "error");
+            showNotification("Failed to cancel bid. Please try again.", "error", 5000);
             throw error;
         }
     }
@@ -383,13 +359,6 @@ const TaskDetail = (props) => {
 
     return (
         <>
-            {notification && (
-                <Notification
-                    message={notification.message}
-                    type={notification.type}
-                    onClose={() => setNotification(null)}
-                />
-            )}
             <div className="bg-gray-50 min-h-[calc(100vh-80px)] py-8">
                 <div className="container-custom max-w-5xl">
                     <div className="mb-4">
@@ -417,7 +386,7 @@ const TaskDetail = (props) => {
                                         </div>
                                         <div className="flex items-center text-gray-600">
                                             <Calendar size={18} className="mr-2" />
-                                            Posted at {shortFormat}
+                                            Posted at {formatDate(task?.createdAt)}
                                         </div>
                                         <div className="flex items-center text-gray-600">
                                             <DollarSign size={18} className="mr-2" />
@@ -566,14 +535,14 @@ const TaskDetail = (props) => {
                                                     <TaskRatingForm onSubmit={handleCompleteTask} />
                                                 </Dialog>
                                                 }
-                                                {task?.employeeConfirmed !== true && taskBids.length > 0 && taskBids[0].status !== "Canceled" && <Button
+                                                {task?.employeeConfirmed !== true && taskBids.length > 0 && taskBids[0].status !== "rejected" && taskBids[0].status !== "canceled" && taskBids[0].status !== "Canceled" && <Button
                                                     variant="outline"
                                                     className="w-full border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white"
                                                     onClick={() => { handleCancelBid(taskBids[0]._id) }}
                                                 >
                                                     Cancel Bid
                                                 </Button>}
-                                                {task.status === "open" && taskBids.length > 0 && <Button
+                                                {task.status === "open" && taskBids.length > 0 && taskBids[0].status !== "rejected" && taskBids[0].status !== "canceled" && <Button
                                                     variant="outline"
                                                     className="w-full border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
                                                     onClick={() => { DeleteBid(taskBids[0]._id) }}

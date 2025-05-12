@@ -176,26 +176,22 @@ export default function Home({ categories, currentYear }) {
             <div>
               <h4 className="font-medium mb-4">For Clients</h4>
               <ul className="space-y-2 text-sm text-gray-300">
-                <li><Link href="/task-listing" className="hover:text-white">Browse Tasks</Link></li>
+                <li><Link href="/tasks" className="hover:text-white">Browse Tasks</Link></li>
                 <li><Link href="/post-task" className="hover:text-white">Post a Task</Link></li>
-                <li><Link href="/help" className="hover:text-white">How it Works</Link></li>
+                <li><Link href="/help/faqs" className="hover:text-white">How it Works</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-medium mb-4">For Professionals</h4>
               <ul className="space-y-2 text-sm text-gray-300">
-                <li><Link href="/task-listing" className="hover:text-white">Find Work</Link></li>
-                <li><Link href="/profile" className="hover:text-white">Build Your Profile</Link></li>
-                <li><Link href="/help" className="hover:text-white">Success Tips</Link></li>
+                <li><Link href="/tasks" className="hover:text-white">Find Work</Link></li>
+                <li><Link href="/help/faqs" className="hover:text-white">Success Tips</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-medium mb-4">Company</h4>
               <ul className="space-y-2 text-sm text-gray-300">
-                <li><Link href="/about" className="hover:text-white">About Us</Link></li>
-                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
-                <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-white">Terms of Service</Link></li>
+                <li><Link href="/" className="hover:text-white">About Us</Link></li>
               </ul>
             </div>
           </div>

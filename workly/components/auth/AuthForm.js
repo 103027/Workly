@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import axios from 'axios';
+import { useNotification } from '@/store/NotificationContext';
 
 const AuthForm = () => {
     const router = useRouter();
     const { mode } = router.query;
-
+    const { showNotification } = useNotification();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
@@ -28,19 +29,17 @@ const AuthForm = () => {
                     'Content-Type': 'application/json'
                 }
             });
-
-            if (response.data.error) {
-                throw new Error(response.data.error);
-            }
+            
             setEmail("")
             setPassword("")
             setName("")
             console.log(response)
             value.afterlogin(response.data?.user)
             router.push(`/role`)
+            showNotification('Login successfully!', 'success');
         } catch (error) {
             console.error('Login failed:', error.response?.data?.error || error.message);
-            throw error;
+            showNotification('Error in Login', 'error', 5000);
         }
     };
 
@@ -57,19 +56,14 @@ const AuthForm = () => {
                 }
             });
 
-            if (response.data.error) {
-                throw new Error(response.data.error);
-            }
-
-            console.log(response)
             setEmail("")
             setPassword("")
             setName("")
             router.push(`/auth/login`)
-
+            showNotification('Registered successfully!', 'success');
         } catch (error) {
             console.error('Signup failed:', error.response?.data?.error || error.message);
-            throw error;
+            showNotification(error.message, 'error', 5000);
         }
     };
 
@@ -98,14 +92,12 @@ const AuthForm = () => {
 
             if (mode === 'login') {
                 await login(email, password);
-                alert("Login successful!");
             } else {
                 await signup(email, password, name, phoneNumber);
-                alert("Account created successfully!");
             }
         } catch (error) {
             console.error('Authentication error:', error);
-            alert(error.message || "Authentication failed");
+            showNotification(error.message, 'error', 5000);
         } finally {
             setIsLoading(false);
         }

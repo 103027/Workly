@@ -36,9 +36,7 @@ const Dashboard = (props) => {
         }
 
         const { role: routeRole, userId } = router.query;
-        if (routeRole && userId) {
-            router.push(`/dashboard/${routeRole}/${userId}`);
-        } else {
+        if (!routeRole && !userId) {
             router.push('/dashboard');
         }
     }, [isAuthenticated, user?.role, router.query, isLoading]);
