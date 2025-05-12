@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import AuthForm from '@/components/auth/AuthForm';
+import { useAuth } from '@/store/AuthContext';
 
 const Auth = () => {
-    const isAuthenticated = false;
+    const {isAuthenticated} = useAuth();
     const router = useRouter();
 
     useEffect(() => {

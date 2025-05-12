@@ -41,8 +41,8 @@ async function handler(req, res) {
                 userId: user._id.toString(),
                 email: user.Email,
             },
-            process.env.JWT_SECRET || 'your-secret-key-here', // Use a proper secret in production
-            { expiresIn: '24h' } // Token expires in 24 hours
+            "XDKoIIWUB8msjqPT",
+            { expiresIn: '24h' }
         );
 
         await client.close();
