@@ -30,12 +30,15 @@ export const NotificationProvider = ({ children }) => {
         if (!notification) return null;
 
         return (
-            <Alert className={`fixed top-4 right-4 w-auto max-w-sm z-50 ${notification.type === 'error' ? 'bg-red-50 border-red-500' : 'bg-green-50 border-green-500'}`}>
-                <AlertDescription className={`${notification.type === 'error' ? 'text-red-800' : 'text-green-800'} flex justify-between items-center`}>
+            <Alert className={`fixed top-4 right-4 w-auto max-w-sm z-50 shadow-lg ${notification.type === 'error'
+                    ? 'bg-red-500 border-red-700 text-white'
+                    : 'bg-green-500 border-green-700 text-white'
+                }`}>
+                <AlertDescription className="flex justify-between items-center font-medium">
                     <span>{notification.message}</span>
                     <button
                         onClick={closeNotification}
-                        className="ml-4 text-gray-500 hover:text-gray-700"
+                        className="ml-4 text-white hover:text-gray-200 font-bold text-xl"
                         aria-label="Close notification"
                     >
                         &times;
