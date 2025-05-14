@@ -248,7 +248,7 @@ export default Dashboard;
 
 export async function getServerSideProps(context) {
     try {
-        const response = await axios.post(`/api/${context.params.userId}`, {
+        const response = await axios.post(`${process.env.BASE_URL}/api/${context.params.userId}`, {
             userType: context.params.role,
         },
             {

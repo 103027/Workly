@@ -55,7 +55,7 @@ const PostTask = () => {
     const postTask = async (formData) => {
         try {
             const response = await axios.post(
-                `/api/post-task`,
+                `${process.env.BASE_URL}/api/post-task`,
                 {
                     userId: userId,
                     title: formData.title,

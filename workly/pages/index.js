@@ -22,7 +22,7 @@ export default function Home({ categories, currentYear }) {
                     Get Started
                   </Button>
                 </Link>
-                <Link href="/help">
+                <Link href="/help/faqs">
                   <Button size="lg" variant="outline" className="border-white text-pro hover:bg-white/10">
                     How it Works
                   </Button>
@@ -84,7 +84,7 @@ export default function Home({ categories, currentYear }) {
             {categories.map((category) => (
               <Link
                 key={category.name}
-                href={`/task-listing?category=${category.name}`}
+                href={`/tasks`}
                 className="flex flex-col items-center p-6 rounded-lg border border-gray-100 hover:border-pro/30 hover:shadow-md transition-all bg-white"
               >
                 <div className="text-4xl mb-3">{category.icon}</div>

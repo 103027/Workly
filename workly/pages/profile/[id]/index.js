@@ -219,7 +219,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps( context ) {
   try {
-    const response = await axios.get(`/api/profile/${context.params.id}`);
+    const response = await axios.get(`${process.env.BASE_URL}/api/profile/${context.params.id}`);
     
     return {
       props: {
