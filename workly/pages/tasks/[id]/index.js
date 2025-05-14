@@ -63,7 +63,7 @@ const TaskDetail = (props) => {
             socket.on('refreshData', async () => {
                 try {
                     // Fetch updated task data
-                    const response = await axios.get(`http://localhost:3000/api/tasks/${id}`);
+                    const response = await axios.get(`/api/tasks/${id}`);
                     if (response.data?.data) {
                         setTask(response.data.data);
                         filterBids(response.data.data);
@@ -116,7 +116,7 @@ const TaskDetail = (props) => {
     const submitBid = async (formData) => {
         try {
             const response = await axios.post(
-                `http://localhost:3000/api/submitBid/${id}`,
+                `/api/submitBid/${id}`,
                 {
                     userId: userId,
                     userName: user.name,
@@ -173,7 +173,7 @@ const TaskDetail = (props) => {
     const AcceptBid = async (bidId) => {
         try {
             const response = await axios.patch(
-                `http://localhost:3000/api/submitBid/${id}/${bidId}`,
+                `/api/submitBid/${id}/${bidId}`,
                 {
                     userId: userId
                 },
@@ -208,7 +208,7 @@ const TaskDetail = (props) => {
     const handleCompleteTask = async (rating, review) => {
         try {
             const response = await axios.patch(
-                `http://localhost:3000/api/tasks/${id}/complete`,
+                `/api/tasks/${id}/complete`,
                 {
                     userId: userId,
                     userType: user.role,
@@ -236,7 +236,7 @@ const TaskDetail = (props) => {
     const DeleteBid = async (bidId) => {
         try {
             const response = await axios.delete(
-                `http://localhost:3000/api/bids/${bidId}/delete`,
+                `/api/bids/${bidId}/delete`,
                 {
                     data: { userId: userId }
                 },
@@ -261,7 +261,7 @@ const TaskDetail = (props) => {
     const DeleteTask = async () => {
         try {
             const response = await axios.delete(
-                `http://localhost:3000/api/tasks/${id}/delete`,
+                `/api/tasks/${id}/delete`,
                 {
                     data: { userId: userId }
                 },
@@ -287,7 +287,7 @@ const TaskDetail = (props) => {
     const handleCancelTask = async () => {
         try {
             const response = await axios.patch(
-                `http://localhost:3000/api/tasks/${id}/cancel`,
+                `/api/tasks/${id}/cancel`,
                 {
                     userId: userId
                 },
@@ -313,7 +313,7 @@ const TaskDetail = (props) => {
     const handleCancelBid = async (bidId) => {
         try {
             const response = await axios.patch(
-                `http://localhost:3000/api/bids/${bidId}/cancel`,
+                `/api/bids/${bidId}/cancel`,
                 {
                     userId: userId
                 },
@@ -645,7 +645,7 @@ export default TaskDetail;
 
 export async function getServerSideProps(context) {
     try {
-        const response = await axios.get(`http://localhost:3000/api/tasks/${context.params.id}`);
+        const response = await axios.get(`/api/tasks/${context.params.id}`);
 
         if (!response.data?.data) {
             return { notFound: true };

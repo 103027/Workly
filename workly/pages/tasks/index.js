@@ -156,7 +156,7 @@ export default function TaskListing({ initialTasks }) {
 
 export async function getStaticProps() {
     try {
-        const response = await axios.get('http://localhost:3000/api/tasks');
+        const response = await axios.get('/api/tasks');
         const tasks = response.data.data.tasks;
         return {
             props: {

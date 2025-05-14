@@ -21,7 +21,7 @@ const AuthForm = () => {
 
     const login = async (email, password) => {
         try {
-            const response = await axios.post('http://localhost:3000/api/auth/signin', {
+            const response = await axios.post('/api/auth/signin', {
                 email,
                 password,
             }, {

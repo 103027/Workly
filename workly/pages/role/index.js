@@ -25,7 +25,7 @@ const RoleSelection = () => {
     const updateUserRole = async (userId, newRole) => {
         try {
             const response = await axios.patch(
-                `http://localhost:3000/api/role/${userId}`,
+                `/api/role/${userId}`,
                 { role: newRole },
                 {
                     headers: {
