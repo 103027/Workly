@@ -4,12 +4,13 @@ import { useAuth } from '@/store/AuthContext';
 
 const DashboardIndex = () => {
   const { userId, role } = useAuth();
+  console.log(role, userId)
   const router = useRouter();
-  
+
   useEffect(() => {
-      router.replace(`/dashboard/${role}/${userId}`);
+    router.replace(`/dashboard/${role}/${userId}`);
   }, []);
-  
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center">

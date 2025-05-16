@@ -116,7 +116,7 @@ const TaskDetail = (props) => {
     const submitBid = async (formData) => {
         try {
             const response = await axios.post(
-                `${process.env.BASE_URL}/api/submitBid/${id}`,
+                `/api/submitBid/${id}`,
                 {
                     userId: userId,
                     userName: user.name,
@@ -173,7 +173,7 @@ const TaskDetail = (props) => {
     const AcceptBid = async (bidId) => {
         try {
             const response = await axios.patch(
-                `${process.env.BASE_URL}/api/submitBid/${id}/${bidId}`,
+                `/api/submitBid/${id}/${bidId}`,
                 {
                     userId: userId
                 },
@@ -208,7 +208,7 @@ const TaskDetail = (props) => {
     const handleCompleteTask = async (rating, review) => {
         try {
             const response = await axios.patch(
-                `${process.env.BASE_URL}/api/tasks/${id}/complete`,
+                `/api/tasks/${id}/complete`,
                 {
                     userId: userId,
                     userType: user.role,
@@ -236,7 +236,7 @@ const TaskDetail = (props) => {
     const DeleteBid = async (bidId) => {
         try {
             const response = await axios.delete(
-                `${process.env.BASE_URL}/api/bids/${bidId}/delete`,
+                `/api/bids/${bidId}/delete`,
                 {
                     data: { userId: userId }
                 },
@@ -261,7 +261,7 @@ const TaskDetail = (props) => {
     const DeleteTask = async () => {
         try {
             const response = await axios.delete(
-                `${process.env.BASE_URL}/api/tasks/${id}/delete`,
+                `/api/tasks/${id}/delete`,
                 {
                     data: { userId: userId }
                 },
@@ -287,7 +287,7 @@ const TaskDetail = (props) => {
     const handleCancelTask = async () => {
         try {
             const response = await axios.patch(
-                `${process.env.BASE_URL}/api/tasks/${id}/cancel`,
+                `/api/tasks/${id}/cancel`,
                 {
                     userId: userId
                 },
@@ -313,7 +313,7 @@ const TaskDetail = (props) => {
     const handleCancelBid = async (bidId) => {
         try {
             const response = await axios.patch(
-                `${process.env.BASE_URL}/api/bids/${bidId}/cancel`,
+                `/api/bids/${bidId}/cancel`,
                 {
                     userId: userId
                 },

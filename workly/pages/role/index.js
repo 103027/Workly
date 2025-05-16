@@ -14,7 +14,7 @@ const RoleSelection = () => {
 
     // Redirect if user is already authenticated with a role
     useEffect(() => {
-        if (isAuthenticated && role) {
+        if (isAuthenticated && role !== "") {
             router.push(`/dashboard`);
         }
         if (!isAuthenticated) {
@@ -25,7 +25,7 @@ const RoleSelection = () => {
     const updateUserRole = async (userId, newRole) => {
         try {
             const response = await axios.patch(
-                `${process.env.BASE_URL}/api/role/${userId}`,
+                `/api/role/${userId}`,
                 { role: newRole },
                 {
                     headers: {

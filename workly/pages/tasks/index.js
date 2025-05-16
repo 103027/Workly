@@ -154,7 +154,7 @@ export default function TaskListing({ initialTasks }) {
     );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
     try {
         const response = await axios.get(`${process.env.BASE_URL}/api/tasks`);
         const tasks = response.data.data.tasks;
@@ -162,7 +162,6 @@ export async function getStaticProps() {
             props: {
                 initialTasks: tasks,
             },
-            revalidate: 60,
         };
     } catch (error) {
         console.error('Error fetching tasks:', error);
@@ -170,7 +169,6 @@ export async function getStaticProps() {
             props: {
                 initialTasks: [],
             },
-            revalidate: 60,
         };
     }
 }

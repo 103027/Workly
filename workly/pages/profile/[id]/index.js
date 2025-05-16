@@ -190,53 +190,26 @@ export default function Profile({ profileData }) {
   );
 }
 
-// Static Site Generation
-export async function getStaticPaths() {
-    try {
-      const response = await axios.get('http://localhost:3000/api/profile');
-      
-      const userIds = response.data.userIds || [];
-  
-      const paths = userIds.map(id => ({
-        params: { id: id.toString() }
-      }));
-  
-      return {
-        paths,
-        fallback: true
-      };
-  
-    } catch (error) {
-      console.error('Error fetching user IDs:', error);
-      
-      return {
-        paths: [],
-        fallback: true
-      };
-    }
-  }
-  
-
-export async function getStaticProps( context ) {
+export async function getServerSideProps(context) {
   try {
-    const response = await axios.get(`${process.env.BASE_URL}/api/profile/${context.params.id}`);
-    
-    return {
-      props: {
-        profileData: response.data,
-      },
-      revalidate: 60,
-    };
+      const { id } = context.params;
+      const response = await axios.get(`${process.env.BASE_URL}/api/profile/${id}`);
+      
+      return {
+          props: {
+              profileData: response.data,
+          },
+      };
   } catch (error) {
-    console.error('Error fetching profile data:', error);
-    
-    if (error.response && error.response.status === 404) {
-      return { notFound: true };
-    }
-    
-    return {
-      notFound: true,
-      props: { error: 'Failed to load profile' }
-    };
+      console.error('Error fetching profile data:', error);
+
+      if (error.response && error.response.status === 404) {
+          return { notFound: true };
+      }
+
+      return {
+          notFound: true,
+          props: { error: 'Failed to load profile' },
+      };
   }
 }
